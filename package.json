@@ -44,20 +44,23 @@
   ],
   "dependencies": {
     "nconf": "*",
-    "nconf-redis": "*",
+    "nconf-redis": "https://github.com/itayw/nconf-redis/tarball/develop",
     "eventemitter2": "*",
-    "winston": "*",
     "redis": "*",
-    "node-uuid": "*",
     "async": "*",
     "express": "*",
     "socket.io": "*",
     "socket.io-wildcard": "*",
     "socket.io-browserify": "*",
-    "jade": "*"
+    "jade": "*",
+    "bunyan": "https://github.com/itayw/node-bunyan/tarball/master",
+    "bunyan-format": "*",
+    "mongo-col": "https://github.com/Raynos/mongo-col/tarball/master",
+    "mongo-stream": "*",
+    "mongodb": "*"
   },
   "devDependencies": {
-    "jsdox": "https://github.com/itayw/jsdox/tarball/master",
+    "jsdox": "https://github.com/itayw/jsdox/tarball/develop",
     "underscore": "1.x",
     "mocha-lcov-reporter": "0.x",
     "coveralls": "2.x",
@@ -65,11 +68,15 @@
     "mocha": "1.x",
     "sinon": "1.x",
     "chai": "1.x",
+    "istanbul": "*",
     "sinon-chai": "2.x",
     "blanket": "1.x",
     "jshint": "2.x",
     "supertest": "0.x",
-    "xtend": "*"
+    "xtend": "*",
+    "request": "*",
+    "zombie": "*",
+    "mkdirp": "*"
   },
   "license": "GPL-3.0"
 }

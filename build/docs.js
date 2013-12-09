@@ -14,12 +14,13 @@ var
   path = require('path'),
   fs = require('fs'),
   async = require('async'),
-  jsdox = require('jsdox');
+  jsdox = require('jsdox'),
+  mkdirp = require('mkdirp');
 
 var docPath = path.join(__dirname, '../docs');
 var libPath = path.join(__dirname, '../lib');
 var wikiPath = path.join(__dirname, '../wiki');
-var wikiCodePath = path.join(wikiPath, '/code');
+var wikiCodePath = path.join(wikiPath, '/technical-documentation/code/');
 
 var exclusions = [
   'sdk/bin/joola.io.js',
@@ -56,30 +57,6 @@ function copyFile(source, target, cb) {
 }
 
 var calls = [];
-var call = function (callback) {
-  var files = wrench.readdirSyncRecursive(libPath);
-  var counter = 0;
-  files.forEach(function (file) {
-    if (file.substring(file.length - 3) == '.js' && exclusions.indexOf(file) == -1) {
-      var targetDir = path.join(wikiCodePath, path.dirname(file));
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir);
-      }
-
-      console.info('Processing doc [' + path.join(targetDir, file.replace('.js', '.md')) + ']');
-      jsdox.generateForDir(path.join(libPath, file), targetDir, function (err) {
-        if (err)
-          console.error(err);
-
-        counter++;
-        if (counter >= files.length)
-          return callback(null);
-      });
-    }
-  });
-};
-
-calls.push(call);
 call = function (callback) {
   var files = wrench.readdirSyncRecursive(docPath);
   var counter = 0;
@@ -93,7 +70,7 @@ call = function (callback) {
         filename = file;
 
       if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir);
+        mkdirp.sync(targetDir);
       }
 
       console.info('Processing static doc [' + path.join(targetDir, filename) + ']');
@@ -108,6 +85,37 @@ call = function (callback) {
     }
   });
 };
+calls.push(call);
+
+var call = function (callback) {
+  var files = wrench.readdirSyncRecursive(libPath);
+  var counter = 0;
+  files.forEach(function (file) {
+    if (file.substring(file.length - 3) == '.js' && exclusions.indexOf(file) == -1 && file.indexOf('webserver/public/') == -1) {
+      var targetDir = path.join(wikiCodePath, path.dirname(file));
+      if (!fs.existsSync(targetDir)) {
+        mkdirp.sync(targetDir);
+      }
+      var filename = file.replace(path.dirname(file), '');
+      if (filename.substring(0, 1) == '/')
+        filename = filename.substring(1);
+      filename = 'joola.lib.' + path.dirname(file).replace(/\//ig, '.') + '.' + filename.replace('.js', '.md');
+
+      console.info('Processing doc [' + path.join(targetDir, filename) + ']');
+
+      process.argv.fullpath = true;
+      jsdox.generateForDir(path.join(libPath, file), targetDir + '/' + filename, function (err) {
+        if (err)
+          console.error(err);
+
+        counter++;
+        if (counter >= files.length)
+          return callback(null);
+      });
+    }
+  });
+};
+
 calls.push(call);
 
 async.parallel(calls, function (err) {
